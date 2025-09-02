@@ -97,31 +97,18 @@
         <a-entity light="type: ambient; intensity: 0.8"></a-entity>
         <a-entity light="type: directional; intensity: 0.8" position="1 1 0"></a-entity>
         
+
         <!-- HIRO marker detection -->
         <a-marker preset="hiro">
-            <!-- Custom 3D model with multiple animations -->
-            <a-entity 
-                id="model" 
-                gltf-model="#penguin" 
-                position="0 0.5 0" 
-                scale="0.4 0.4 0.4"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
-                animation__bob="property: position; to: 0 1 0; loop: true; dur: 2000; dir: alternate; easing: easeInOutSine"
-                material="color: #4CC3D9"
-                shadow="cast: true; receive: false">
-            </a-entity>
-            
-            <!-- Fallback box if model doesn't load -->
+            <!-- Simple test cube - this should always work -->
             <a-box 
-                id="fallback-cube" 
+                id="test-cube" 
                 position="0 0.5 0" 
-                depth="0.5" 
-                height="0.5" 
-                width="0.5" 
-                color="#4CC3D9"
-                visible="false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
-                shadow="cast: true; receive: false">
+                depth="1" 
+                height="1" 
+                width="1" 
+                color="red"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
             </a-box>
             
             <!-- Reference plane for scale understanding -->
@@ -134,6 +121,7 @@
                 opacity="0.25">
             </a-plane>
         </a-marker>
+
         
         <!-- AR.js camera entity -->
         <a-entity camera></a-entity>
