@@ -1,17 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AR.js 3D Object Viewer</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        /* UI Overlay styles */
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            z-index: 1000;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #4CC3D9;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #3BB3C3;
+        }
+    </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
+    <!-- UI Overlay with instructions -->
+    <div class="ui-overlay">
+        <div>📱 Point your camera at the HIRO marker to see the 3D cube!</div>
+        <div>🖱️ Tap buttons below to interact</div>
+    </div>
+    
+    <!-- Control buttons -->
+    <div class="controls">
+        <button id="toggle-color" class="btn">Change Color</button>
+        <button id="toggle-scale" class="btn">Toggle Size</button>
+    </div>
+
+    <!-- AR Scene - keeping it simple like your working version -->
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;">
         <a-marker preset="hiro">
-            <a-box position="0 0.5 0" material="color: red;" 
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000;">
+            <!-- 3D object with two animations (rotation + bobbing) -->
+            <a-box 
+                id="ar-cube"
+                position="0 0.5 0" 
+                material="color: red;" 
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 2000;"
+                animation__bob="property: position; to: 0 1 0; from: 0 0.5 0; loop: true; dur: 1500; dir: alternate; easing: easeInOutSine">
             </a-box>
         </a-marker>
         <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+        // Wait for scene to load before setting up interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Setting up interactions...');
+            
+            // Get references to interactive elements
+            const cube = document.getElementById('ar-cube');
+            const btnColor = document.getElementById('toggle-color');
+            const btnScale = document.getElementById('toggle-scale');
+            
+            // State tracking for interactions
+            let colorToggle = false;
+            let scaleToggle = false;
+            
+            // Color array for cycling through different colors
+            const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+            let colorIndex = 0;
+            
+            // Color toggle interaction - cycles through different colors
+            btnColor.addEventListener('click', () => {
+                colorIndex = (colorIndex + 1) % colors.length;
+                const newColor = colors[colorIndex];
+                cube.setAttribute('material', 'color', newColor);
+                console.log('Color changed to:', newColor);
+            });
+            
+            // Scale toggle interaction - makes object larger/smaller
+            btnScale.addEventListener('click', () => {
+                scaleToggle = !scaleToggle;
+                const newScale = scaleToggle ? '2 2 2' : '1 1 1';
+                cube.setAttribute('scale', newScale);
+                console.log('Scale changed to:', newScale);
+            });
+            
+            // Direct tap/click interaction on the 3D object
+            cube.addEventListener('click', () => {
+                btnColor.click(); // Trigger color change when cube is tapped
+                console.log('Cube tapped - color changed!');
+            });
+            
+            // Marker tracking events for feedback
+            const marker = document.querySelector('a-marker');
+            marker.addEventListener('markerFound', () => {
+                console.log('✅ HIRO marker detected!');
+            });
+            
+            marker.addEventListener('markerLost', () => {
+                console.log('❌ HIRO marker lost');
+            });
+        });
+    </script>
 </body>
 </html>
