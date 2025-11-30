@@ -3,103 +3,43 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Journey Through Time - AR Experience</title>
+    <title>AR Cube Test - Evolution Journey</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.js"></script>
     
     <style>
         body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
         
-        .ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 100%);
-            color: white;
-            padding: 15px;
-            z-index: 1000;
-            text-align: center;
-            font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        
         .status {
             position: fixed;
-            top: 70px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
             color: #FFD700;
-            padding: 12px 24px;
+            padding: 15px 30px;
             border-radius: 25px;
             z-index: 1000;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
-            50% { box-shadow: 0 4px 25px rgba(255, 215, 0, 0.6); }
-        }
-
-        .controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 90%;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: black;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-
-        .btn:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            background: #666;
-            color: #999;
-            cursor: not-allowed;
-            opacity: 0.5;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+            text-align: center;
+            max-width: 80%;
         }
 
         .progress {
             position: fixed;
-            top: 120px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 15px;
             z-index: 1000;
         }
 
         .progress-dot {
-            width: 15px;
-            height: 15px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: rgba(255,255,255,0.3);
             transition: all 0.3s ease;
@@ -107,43 +47,50 @@
 
         .progress-dot.active {
             background: #FFD700;
-            box-shadow: 0 0 15px #FFD700;
+            box-shadow: 0 0 20px #FFD700;
+            transform: scale(1.2);
+        }
+
+        .reset-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            transform: translateX(-50%) translateY(-2px);
         }
     </style>
 </head>
 <body>
-    <div class="ui-overlay">
-        <div style="font-size: 18px; margin-bottom: 5px;">⏳ <strong>Journey Through Time</strong></div>
-        <div>Travel through history: <strong>Ancient Egypt 🏜️ → Modern New York 🏙️ → Future Mars 🚀</strong></div>
-    </div>
-
-    <div id="status" class="status">⏳ Begin your journey in Ancient Egypt...</div>
+    <div id="status" class="status">📸 Scan Photo 1 to begin evolution...</div>
     
     <div class="progress">
-        <div class="progress-dot" id="dot1" title="Ancient Egypt"></div>
-        <div class="progress-dot" id="dot2" title="Modern New York"></div>
-        <div class="progress-dot" id="dot3" title="Future Mars"></div>
+        <div class="progress-dot" id="dot1" title="Photo 1"></div>
+        <div class="progress-dot" id="dot2" title="Photo 2"></div>
+        <div class="progress-dot" id="dot3" title="Photo 3"></div>
     </div>
 
-    <div class="controls">
-        <button id="btn-color" class="btn" disabled>🎨 Change Color</button>
-        <button id="btn-scale" class="btn" disabled>📏 Toggle Size</button>
-        <button id="btn-animate" class="btn" disabled>⚡ Toggle Animation</button>
-        <button id="btn-reset" class="btn">🔄 Reset Journey</button>
-    </div>
+    <button id="reset-btn" class="reset-btn">🔄 Reset</button>
 
     <a-scene
         embedded
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         vr-mode-ui="enabled: false;">
 
-        <a-assets>
-            <!-- 3D Models for different eras -->
-            <a-asset-item id="airplane" src="https://cdn.aframe.io/360-image-gallery-boilerplate/models/airplane/airplane.gltf"></a-asset-item>
-            <a-asset-item id="duck" src="https://cdn.aframe.io/examples/ar/models/duck/duck.gltf"></a-asset-item>
-        </a-assets>
-
-        <!-- Scene 1: Ancient Egypt (3000 BC) -->
+        <!-- MARKER 1: Red Cube -->
         <a-nft
             id="marker1"
             type="nft"
@@ -153,46 +100,27 @@
             smoothTolerance=".01"
             smoothThreshold="5">
             
-            <a-entity
-                id="model1"
-                gltf-model="#airplane"
+            <a-box
+                id="cube1"
                 position="0 100 0"
                 scale="100 100 100"
-                rotation="0 0 0"
-                material="color: #D4AF37"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
-                animation__bob="property: position; to: 0 150 0; from: 0 100 0; loop: true; dur: 3000; dir: alternate; easing: easeInOutSine">
-            </a-entity>
+                color="#FF0000"
+                material="opacity: 0.9"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"
+                animation__bounce="property: position; to: 0 150 0; from: 0 100 0; loop: true; dur: 2000; dir: alternate; easing: easeInOutQuad">
+            </a-box>
 
             <a-text
-                value="ANCIENT EGYPT"
-                position="0 240 0"
-                scale="70 70 70"
+                value="STAGE 1"
+                position="0 220 0"
+                scale="80 80 80"
                 align="center"
-                color="#FFD700"
-                shader="flat">
-            </a-text>
-
-            <a-text
-                value="3000 BC - The Age of Pyramids"
-                position="0 190 0"
-                scale="45 45 45"
-                align="center"
-                color="#D4AF37"
-                shader="flat">
-            </a-text>
-
-            <a-text
-                value="Scan New York marker to travel forward in time"
-                position="0 150 0"
-                scale="35 35 35"
-                align="center"
-                color="#FFFFFF"
+                color="#FF0000"
                 shader="flat">
             </a-text>
         </a-nft>
 
-        <!-- Scene 2: Modern New York (2024 AD) -->
+        <!-- MARKER 2: Green Cube -->
         <a-nft
             id="marker2"
             type="nft"
@@ -203,47 +131,28 @@
             smoothThreshold="5">
             
             <a-entity id="scene2" visible="false">
-                <a-entity
-                    id="model2"
-                    gltf-model="#duck"
+                <a-box
+                    id="cube2"
                     position="0 100 0"
-                    scale="200 200 200"
-                    rotation="0 0 0"
-                    material="color: #00CED1"
-                    animation="property: position; to: 0 160 0; from: 0 100 0; loop: true; dur: 2500; dir: alternate; easing: easeInOutQuad"
-                    animation__spin="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
-                </a-entity>
+                    scale="120 120 120"
+                    color="#00FF00"
+                    material="opacity: 0.9"
+                    animation="property: rotation; to: 360 0 360; loop: true; dur: 3000; easing: linear"
+                    animation__bounce="property: position; to: 0 160 0; from: 0 100 0; loop: true; dur: 1800; dir: alternate; easing: easeInOutQuad">
+                </a-box>
 
                 <a-text
-                    value="MODERN NEW YORK"
-                    position="0 290 0"
-                    scale="75 75 75"
-                    align="center"
-                    color="#00CED1"
-                    shader="flat">
-                </a-text>
-
-                <a-text
-                    value="2024 AD - The Age of Technology"
+                    value="STAGE 2"
                     position="0 240 0"
-                    scale="50 50 50"
+                    scale="90 90 90"
                     align="center"
-                    color="#1E90FF"
-                    shader="flat">
-                </a-text>
-
-                <a-text
-                    value="Scan Mars marker to journey to the future"
-                    position="0 200 0"
-                    scale="38 38 38"
-                    align="center"
-                    color="#FFFFFF"
+                    color="#00FF00"
                     shader="flat">
                 </a-text>
             </a-entity>
         </a-nft>
 
-        <!-- Scene 3: Future Mars (3024 AD) -->
+        <!-- MARKER 3: Blue Cube -->
         <a-nft
             id="marker3"
             type="nft"
@@ -254,53 +163,33 @@
             smoothThreshold="5">
             
             <a-entity id="scene3" visible="false">
-                <a-entity
-                    id="model3a"
-                    gltf-model="#airplane"
-                    position="-120 120 0"
-                    scale="90 90 90"
-                    material="color: #FF4500"
-                    animation="property: rotation; to: 0 -360 0; loop: true; dur: 3000; easing: linear"
-                    animation__bob="property: position; to: -120 180 0; from: -120 120 0; loop: true; dur: 2000; dir: alternate">
-                </a-entity>
+                <a-box
+                    id="cube3"
+                    position="0 100 0"
+                    scale="150 150 150"
+                    color="#0000FF"
+                    material="opacity: 0.9"
+                    animation="property: rotation; to: 0 360 360; loop: true; dur: 2500; easing: linear"
+                    animation__bounce="property: position; to: 0 180 0; from: 0 100 0; loop: true; dur: 1500; dir: alternate; easing: easeInOutQuad">
+                </a-box>
 
-                <a-entity
-                    id="model3b"
-                    gltf-model="#duck"
-                    position="120 120 0"
-                    scale="180 180 180"
-                    material="color: #FF6347"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3500; easing: linear"
-                    animation__bob="property: position; to: 120 180 0; from: 120 120 0; loop: true; dur: 2500; dir: alternate; delay: 500">
-                </a-entity>
+                <a-text
+                    value="STAGE 3"
+                    position="0 280 0"
+                    scale="100 100 100"
+                    align="center"
+                    color="#0000FF"
+                    shader="flat">
+                </a-text>
 
-                <a-entity position="0 320 0">
-                    <a-text
-                        value="FUTURE MARS COLONY"
-                        position="0 0 0"
-                        scale="85 85 85"
-                        align="center"
-                        color="#FF4500"
-                        shader="flat">
-                    </a-text>
-                    <a-text
-                        value="3024 AD - The Age of Exploration"
-                        position="0 -50 0"
-                        scale="55 55 55"
-                        align="center"
-                        color="#FF6347"
-                        shader="flat">
-                    </a-text>
-                    <a-text
-                        value="Journey Complete!"
-                        position="0 -100 0"
-                        scale="60 60 60"
-                        align="center"
-                        color="#FFD700"
-                        shader="flat"
-                        animation="property: scale; to: 70 70 70; from: 60 60 60; loop: true; dur: 1000; dir: alternate; easing: easeInOutSine">
-                    </a-text>
-                </a-entity>
+                <a-text
+                    value="EVOLUTION COMPLETE!"
+                    position="0 220 0"
+                    scale="60 60 60"
+                    align="center"
+                    color="#FFFFFF"
+                    shader="flat">
+                </a-text>
             </a-entity>
         </a-nft>
 
@@ -309,40 +198,23 @@
 
     <script>
         const gameState = {
-            egyptScanned: false,
-            newYorkScanned: false,
-            marsScanned: false,
-            currentEra: null
+            stage1Scanned: false,
+            stage2Scanned: false,
+            stage3Scanned: false
         };
 
-        // Thematic colors for each era
-        const egyptColors = ['#FFD700', '#D4AF37', '#CD853F', '#DAA520', '#B8860B'];
-        const newYorkColors = ['#00CED1', '#1E90FF', '#4169E1', '#00BFFF', '#87CEEB'];
-        const marsColors = ['#FF4500', '#FF6347', '#DC143C', '#B22222', '#8B0000'];
-        
-        let colorIndex = 0;
-        let scaleToggle = false;
-        let animationPaused = false;
-
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('⏳ Journey Through Time AR Experience initializing...');
+            console.log('🎮 AR Cube Test initialized');
             
             const statusDiv = document.getElementById('status');
-            const btnColor = document.getElementById('btn-color');
-            const btnScale = document.getElementById('btn-scale');
-            const btnAnimate = document.getElementById('btn-animate');
-            const btnReset = document.getElementById('btn-reset');
+            const resetBtn = document.getElementById('reset-btn');
             
             const marker1 = document.getElementById('marker1');
             const marker2 = document.getElementById('marker2');
             const marker3 = document.getElementById('marker3');
 
-            const model1 = document.getElementById('model1');
             const scene2 = document.getElementById('scene2');
-            const model2 = document.getElementById('model2');
             const scene3 = document.getElementById('scene3');
-            const model3a = document.getElementById('model3a');
-            const model3b = document.getElementById('model3b');
 
             const dot1 = document.getElementById('dot1');
             const dot2 = document.getElementById('dot2');
@@ -354,180 +226,84 @@
             }
 
             function updateProgress() {
-                dot1.classList.toggle('active', gameState.egyptScanned);
-                dot2.classList.toggle('active', gameState.newYorkScanned);
-                dot3.classList.toggle('active', gameState.marsScanned);
+                dot1.classList.toggle('active', gameState.stage1Scanned);
+                dot2.classList.toggle('active', gameState.stage2Scanned);
+                dot3.classList.toggle('active', gameState.stage3Scanned);
             }
 
-            // MARKER 1: Ancient Egypt
+            // MARKER 1: Red Cube
             marker1.addEventListener('markerFound', function() {
-                console.log('✅ Ancient Egypt marker found!');
-                gameState.egyptScanned = true;
-                gameState.currentEra = 'egypt';
-                updateStatus('🏜️ Welcome to Ancient Egypt! Scan New York to continue through time...');
+                console.log('✅ Photo 1 detected!');
+                gameState.stage1Scanned = true;
+                updateStatus('🔴 Stage 1 Active - Red Cube! Scan Photo 2 next...');
                 updateProgress();
-                btnColor.disabled = false;
-                btnScale.disabled = false;
-                btnAnimate.disabled = false;
                 
-                // Unlock New York scene
+                // Unlock stage 2
                 scene2.setAttribute('visible', true);
             });
 
             marker1.addEventListener('markerLost', function() {
-                console.log('❌ Ancient Egypt marker lost');
-                if (gameState.currentEra === 'egypt') {
-                    btnColor.disabled = true;
-                    btnScale.disabled = true;
-                    btnAnimate.disabled = true;
-                }
+                console.log('❌ Photo 1 lost');
             });
 
-            // MARKER 2: Modern New York
+            // MARKER 2: Green Cube
             marker2.addEventListener('markerFound', function() {
-                if (!gameState.egyptScanned) {
-                    updateStatus('🔒 You must start from Ancient Egypt first!');
+                if (!gameState.stage1Scanned) {
+                    updateStatus('🚫 ERROR: You must scan Photo 1 first!');
+                    console.log('⚠️ Blocked: Stage 1 not completed');
                     return;
                 }
                 
-                console.log('✅ New York marker found!');
-                gameState.newYorkScanned = true;
-                gameState.currentEra = 'newyork';
-                updateStatus('🏙️ Welcome to Modern New York! Scan Mars to journey to the future...');
+                console.log('✅ Photo 2 detected!');
+                gameState.stage2Scanned = true;
+                updateStatus('🟢 Stage 2 Active - Green Cube! Scan Photo 3 to complete...');
                 updateProgress();
-                btnColor.disabled = false;
-                btnScale.disabled = false;
-                btnAnimate.disabled = false;
                 
-                // Unlock Mars scene
+                // Unlock stage 3
                 scene3.setAttribute('visible', true);
             });
 
             marker2.addEventListener('markerLost', function() {
-                console.log('❌ New York marker lost');
-                if (gameState.currentEra === 'newyork') {
-                    btnColor.disabled = true;
-                    btnScale.disabled = true;
-                    btnAnimate.disabled = true;
-                }
+                console.log('❌ Photo 2 lost');
             });
 
-            // MARKER 3: Future Mars
+            // MARKER 3: Blue Cube
             marker3.addEventListener('markerFound', function() {
-                if (!gameState.newYorkScanned) {
-                    updateStatus('🔒 Follow the timeline! Visit Ancient Egypt and New York first...');
+                if (!gameState.stage1Scanned) {
+                    updateStatus('🚫 ERROR: You must scan Photo 1 first!');
+                    console.log('⚠️ Blocked: Stage 1 not completed');
                     return;
                 }
                 
-                console.log('✅ Mars marker found!');
-                gameState.marsScanned = true;
-                gameState.currentEra = 'mars';
-                updateStatus('🚀 Welcome to Mars Colony 3024! Your journey through time is complete!');
+                if (!gameState.stage2Scanned) {
+                    updateStatus('🚫 ERROR: You must scan Photo 2 before Photo 3!');
+                    console.log('⚠️ Blocked: Stage 2 not completed');
+                    return;
+                }
+                
+                console.log('✅ Photo 3 detected!');
+                gameState.stage3Scanned = true;
+                updateStatus('🔵 COMPLETE! All 3 stages done - Evolution successful! 🎉');
                 updateProgress();
-                btnColor.disabled = false;
-                btnScale.disabled = false;
-                btnAnimate.disabled = false;
             });
 
             marker3.addEventListener('markerLost', function() {
-                console.log('❌ Mars marker lost');
-                if (gameState.currentEra === 'mars') {
-                    btnColor.disabled = true;
-                    btnScale.disabled = true;
-                    btnAnimate.disabled = true;
-                }
+                console.log('❌ Photo 3 lost');
             });
 
-            // INTERACTION: Change color (thematic to each era)
-            btnColor.addEventListener('click', function() {
-                colorIndex = (colorIndex + 1) % 5;
-                let newColor;
-                
-                switch(gameState.currentEra) {
-                    case 'egypt':
-                        newColor = egyptColors[colorIndex];
-                        model1.setAttribute('material', 'color', newColor);
-                        break;
-                    case 'newyork':
-                        newColor = newYorkColors[colorIndex];
-                        model2.setAttribute('material', 'color', newColor);
-                        break;
-                    case 'mars':
-                        newColor = marsColors[colorIndex];
-                        model3a.setAttribute('material', 'color', newColor);
-                        model3b.setAttribute('material', 'color', marsColors[(colorIndex + 2) % 5]);
-                        break;
-                }
-                
-                console.log('🎨 Era color changed to:', newColor);
-            });
-
-            // INTERACTION: Toggle scale
-            btnScale.addEventListener('click', function() {
-                scaleToggle = !scaleToggle;
-                
-                switch(gameState.currentEra) {
-                    case 'egypt':
-                        model1.setAttribute('scale', scaleToggle ? '150 150 150' : '100 100 100');
-                        break;
-                    case 'newyork':
-                        model2.setAttribute('scale', scaleToggle ? '300 300 300' : '200 200 200');
-                        break;
-                    case 'mars':
-                        model3a.setAttribute('scale', scaleToggle ? '130 130 130' : '90 90 90');
-                        model3b.setAttribute('scale', scaleToggle ? '250 250 250' : '180 180 180');
-                        break;
-                }
-                
-                console.log('📏 Scale toggled:', scaleToggle ? 'Larger' : 'Normal');
-            });
-
-            // INTERACTION: Toggle animation
-            btnAnimate.addEventListener('click', function() {
-                animationPaused = !animationPaused;
-                const pauseValue = animationPaused ? 'paused' : 'running';
-                btnAnimate.textContent = animationPaused ? '▶️ Play Animation' : '⏸️ Pause Animation';
-                
-                switch(gameState.currentEra) {
-                    case 'egypt':
-                        model1.setAttribute('animation', 'pauseEvents', pauseValue);
-                        model1.setAttribute('animation__bob', 'pauseEvents', pauseValue);
-                        break;
-                    case 'newyork':
-                        model2.setAttribute('animation', 'pauseEvents', pauseValue);
-                        model2.setAttribute('animation__spin', 'pauseEvents', pauseValue);
-                        break;
-                    case 'mars':
-                        model3a.setAttribute('animation', 'pauseEvents', pauseValue);
-                        model3a.setAttribute('animation__bob', 'pauseEvents', pauseValue);
-                        model3b.setAttribute('animation', 'pauseEvents', pauseValue);
-                        model3b.setAttribute('animation__bob', 'pauseEvents', pauseValue);
-                        break;
-                }
-                
-                console.log('⚡ Animation:', animationPaused ? 'Paused' : 'Playing');
-            });
-
-            // INTERACTION: Reset journey
-            btnReset.addEventListener('click', function() {
-                gameState.egyptScanned = false;
-                gameState.newYorkScanned = false;
-                gameState.marsScanned = false;
-                gameState.currentEra = null;
+            // RESET BUTTON
+            resetBtn.addEventListener('click', function() {
+                gameState.stage1Scanned = false;
+                gameState.stage2Scanned = false;
+                gameState.stage3Scanned = false;
                 
                 scene2.setAttribute('visible', false);
                 scene3.setAttribute('visible', false);
                 
-                updateStatus('🔄 Journey reset! Begin again in Ancient Egypt...');
+                updateStatus('📸 Scan Photo 1 to begin evolution...');
                 updateProgress();
-                btnColor.disabled = true;
-                btnScale.disabled = true;
-                btnAnimate.disabled = true;
-                btnAnimate.textContent = '⚡ Toggle Animation';
-                animationPaused = false;
-                colorIndex = 0;
                 
-                console.log('🔄 Time journey reset to beginning');
+                console.log('🔄 Reset complete');
             });
         });
     </script>
