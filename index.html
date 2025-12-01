@@ -3,96 +3,57 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AR Cube Test - Evolution Journey</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.js"></script>
+    <title>AR Test - Simple Cube</title>
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+        }
         
-        .status {
+        #status {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #FFD700;
-            padding: 15px 30px;
-            border-radius: 25px;
-            z-index: 1000;
-            font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
-            text-align: center;
-            max-width: 80%;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 10000;
+            max-width: 90%;
         }
-
-        .progress {
+        
+        #log {
             position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 1000;
-        }
-
-        .progress-dot {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
-        }
-
-        .progress-dot.active {
-            background: #FFD700;
-            box-shadow: 0 0 20px #FFD700;
-            transform: scale(1.2);
-        }
-
-        .reset-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 1000;
-        }
-
-        .reset-btn:hover {
-            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
-            transform: translateX(-50%) translateY(-2px);
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: lime;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 10000;
+            max-width: 90%;
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-    <div id="status" class="status">📸 Scan Photo 1 to begin evolution...</div>
-    
-    <div class="progress">
-        <div class="progress-dot" id="dot1" title="Photo 1"></div>
-        <div class="progress-dot" id="dot2" title="Photo 2"></div>
-        <div class="progress-dot" id="dot3" title="Photo 3"></div>
-    </div>
-
-    <button id="reset-btn" class="reset-btn">🔄 Reset</button>
+    <div id="status">Loading...</div>
+    <div id="log"></div>
 
     <a-scene
+        vr-mode-ui="enabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        vr-mode-ui="enabled: false;">
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
-        <!-- MARKER 1: Red Cube -->
+        <!-- Just ONE marker to test -->
         <a-nft
-            id="marker1"
             type="nft"
             url="marker1"
             smooth="true"
@@ -100,212 +61,103 @@
             smoothTolerance=".01"
             smoothThreshold="5">
             
+            <!-- Simple red cube -->
             <a-box
-                id="cube1"
-                position="0 100 0"
-                scale="100 100 100"
-                color="#FF0000"
-                material="opacity: 0.9"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"
-                animation__bounce="property: position; to: 0 150 0; from: 0 100 0; loop: true; dur: 2000; dir: alternate; easing: easeInOutQuad">
+                position="0 0.5 0"
+                material="color: red;"
+                scale="0.5 0.5 0.5"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
             </a-box>
-
-            <a-text
-                value="STAGE 1"
-                position="0 220 0"
-                scale="80 80 80"
-                align="center"
-                color="#FF0000"
-                shader="flat">
-            </a-text>
-        </a-nft>
-
-        <!-- MARKER 2: Green Cube -->
-        <a-nft
-            id="marker2"
-            type="nft"
-            url="marker2"
-            smooth="true"
-            smoothCount="10"
-            smoothTolerance=".01"
-            smoothThreshold="5">
-            
-            <a-entity id="scene2" visible="false">
-                <a-box
-                    id="cube2"
-                    position="0 100 0"
-                    scale="120 120 120"
-                    color="#00FF00"
-                    material="opacity: 0.9"
-                    animation="property: rotation; to: 360 0 360; loop: true; dur: 3000; easing: linear"
-                    animation__bounce="property: position; to: 0 160 0; from: 0 100 0; loop: true; dur: 1800; dir: alternate; easing: easeInOutQuad">
-                </a-box>
-
-                <a-text
-                    value="STAGE 2"
-                    position="0 240 0"
-                    scale="90 90 90"
-                    align="center"
-                    color="#00FF00"
-                    shader="flat">
-                </a-text>
-            </a-entity>
-        </a-nft>
-
-        <!-- MARKER 3: Blue Cube -->
-        <a-nft
-            id="marker3"
-            type="nft"
-            url="marker3"
-            smooth="true"
-            smoothCount="10"
-            smoothTolerance=".01"
-            smoothThreshold="5">
-            
-            <a-entity id="scene3" visible="false">
-                <a-box
-                    id="cube3"
-                    position="0 100 0"
-                    scale="150 150 150"
-                    color="#0000FF"
-                    material="opacity: 0.9"
-                    animation="property: rotation; to: 0 360 360; loop: true; dur: 2500; easing: linear"
-                    animation__bounce="property: position; to: 0 180 0; from: 0 100 0; loop: true; dur: 1500; dir: alternate; easing: easeInOutQuad">
-                </a-box>
-
-                <a-text
-                    value="STAGE 3"
-                    position="0 280 0"
-                    scale="100 100 100"
-                    align="center"
-                    color="#0000FF"
-                    shader="flat">
-                </a-text>
-
-                <a-text
-                    value="EVOLUTION COMPLETE!"
-                    position="0 220 0"
-                    scale="60 60 60"
-                    align="center"
-                    color="#FFFFFF"
-                    shader="flat">
-                </a-text>
-            </a-entity>
         </a-nft>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        const gameState = {
-            stage1Scanned: false,
-            stage2Scanned: false,
-            stage3Scanned: false
-        };
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        
+        function addLog(msg) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML = `[${timestamp}] ${msg}<br>` + log.innerHTML;
+            console.log(msg);
+        }
+        
+        function setStatus(msg) {
+            status.textContent = msg;
+            addLog(msg);
+        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎮 AR Cube Test initialized');
+        // Wait for everything to load
+        window.addEventListener('load', function() {
+            addLog('✅ Page loaded');
+            setStatus('⏳ Initializing AR...');
             
-            const statusDiv = document.getElementById('status');
-            const resetBtn = document.getElementById('reset-btn');
-            
-            const marker1 = document.getElementById('marker1');
-            const marker2 = document.getElementById('marker2');
-            const marker3 = document.getElementById('marker3');
-
-            const scene2 = document.getElementById('scene2');
-            const scene3 = document.getElementById('scene3');
-
-            const dot1 = document.getElementById('dot1');
-            const dot2 = document.getElementById('dot2');
-            const dot3 = document.getElementById('dot3');
-
-            function updateStatus(message) {
-                statusDiv.textContent = message;
-                console.log('📊', message);
-            }
-
-            function updateProgress() {
-                dot1.classList.toggle('active', gameState.stage1Scanned);
-                dot2.classList.toggle('active', gameState.stage2Scanned);
-                dot3.classList.toggle('active', gameState.stage3Scanned);
-            }
-
-            // MARKER 1: Red Cube
-            marker1.addEventListener('markerFound', function() {
-                console.log('✅ Photo 1 detected!');
-                gameState.stage1Scanned = true;
-                updateStatus('🔴 Stage 1 Active - Red Cube! Scan Photo 2 next...');
-                updateProgress();
+            setTimeout(function() {
+                const scene = document.querySelector('a-scene');
                 
-                // Unlock stage 2
-                scene2.setAttribute('visible', true);
-            });
-
-            marker1.addEventListener('markerLost', function() {
-                console.log('❌ Photo 1 lost');
-            });
-
-            // MARKER 2: Green Cube
-            marker2.addEventListener('markerFound', function() {
-                if (!gameState.stage1Scanned) {
-                    updateStatus('🚫 ERROR: You must scan Photo 1 first!');
-                    console.log('⚠️ Blocked: Stage 1 not completed');
-                    return;
+                if (scene.hasLoaded) {
+                    addLog('✅ A-Frame scene loaded');
+                    setStatus('📷 Camera starting...');
+                } else {
+                    scene.addEventListener('loaded', function() {
+                        addLog('✅ A-Frame scene loaded');
+                        setStatus('📷 Camera starting...');
+                    });
                 }
-                
-                console.log('✅ Photo 2 detected!');
-                gameState.stage2Scanned = true;
-                updateStatus('🟢 Stage 2 Active - Green Cube! Scan Photo 3 to complete...');
-                updateProgress();
-                
-                // Unlock stage 3
-                scene3.setAttribute('visible', true);
-            });
-
-            marker2.addEventListener('markerLost', function() {
-                console.log('❌ Photo 2 lost');
-            });
-
-            // MARKER 3: Blue Cube
-            marker3.addEventListener('markerFound', function() {
-                if (!gameState.stage1Scanned) {
-                    updateStatus('🚫 ERROR: You must scan Photo 1 first!');
-                    console.log('⚠️ Blocked: Stage 1 not completed');
-                    return;
-                }
-                
-                if (!gameState.stage2Scanned) {
-                    updateStatus('🚫 ERROR: You must scan Photo 2 before Photo 3!');
-                    console.log('⚠️ Blocked: Stage 2 not completed');
-                    return;
-                }
-                
-                console.log('✅ Photo 3 detected!');
-                gameState.stage3Scanned = true;
-                updateStatus('🔵 COMPLETE! All 3 stages done - Evolution successful! 🎉');
-                updateProgress();
-            });
-
-            marker3.addEventListener('markerLost', function() {
-                console.log('❌ Photo 3 lost');
-            });
-
-            // RESET BUTTON
-            resetBtn.addEventListener('click', function() {
-                gameState.stage1Scanned = false;
-                gameState.stage2Scanned = false;
-                gameState.stage3Scanned = false;
-                
-                scene2.setAttribute('visible', false);
-                scene3.setAttribute('visible', false);
-                
-                updateStatus('📸 Scan Photo 1 to begin evolution...');
-                updateProgress();
-                
-                console.log('🔄 Reset complete');
-            });
+            }, 100);
         });
+
+        // Camera events
+        window.addEventListener('arjs-video-loaded', function() {
+            addLog('✅ Camera video loaded');
+            setStatus('📸 Ready! Point camera at marker image');
+        });
+
+        // AR.js ready
+        window.addEventListener('camera-init', function(data) {
+            addLog('✅ AR camera initialized');
+        });
+
+        window.addEventListener('camera-error', function(error) {
+            addLog('❌ Camera error: ' + JSON.stringify(error));
+            setStatus('❌ Camera error - check permissions!');
+        });
+
+        // Marker detection
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🎮 DOM ready');
+            
+            const marker = document.querySelector('a-nft');
+            
+            if (marker) {
+                addLog('✅ Marker element found');
+                
+                marker.addEventListener('markerFound', function() {
+                    addLog('🎯 MARKER FOUND! Cube should be visible!');
+                    setStatus('✅ MARKER DETECTED - See the cube?');
+                });
+
+                marker.addEventListener('markerLost', function() {
+                    addLog('👋 Marker lost');
+                    setStatus('📸 Marker lost - scan again');
+                });
+            } else {
+                addLog('❌ ERROR: Marker element not found!');
+            }
+        });
+
+        // Error logging
+        window.addEventListener('error', function(e) {
+            addLog('❌ ERROR: ' + e.message);
+            setStatus('❌ Error occurred - check console');
+        });
+
+        // Check for HTTPS
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            addLog('⚠️ WARNING: Not using HTTPS! Camera may not work.');
+            setStatus('⚠️ Camera needs HTTPS or localhost');
+        }
     </script>
 </body>
 </html>
