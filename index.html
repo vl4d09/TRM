@@ -9,26 +9,6 @@
     <style>
         body { margin: 0; overflow: hidden; }
         
-        .debug-panel {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9999;
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 11px;
-            max-width: 350px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .debug-panel div {
-            margin: 3px 0;
-        }
-        
         .status-bar {
             position: fixed;
             top: 20px;
@@ -106,19 +86,6 @@
     </style>
 </head>
 <body>
-    <!-- Debug Panel -->
-    <div class="debug-panel" id="debug">
-        <div><strong>🔍 Debug Console</strong></div>
-        <div>Camera: <span id="camera-status">⏳ Loading...</span></div>
-        <div>AR.js: <span id="arjs-status">⏳ Loading...</span></div>
-        <div>---</div>
-        <div>M1: <span id="m1-status">-</span></div>
-        <div>M2: <span id="m2-status">-</span></div>
-        <div>M3: <span id="m3-status">-</span></div>
-        <div>---</div>
-        <div id="logs" style="font-size: 10px; color: #aaa;"></div>
-    </div>
-
     <!-- Status Bar -->
     <div class="status-bar">
         <div class="marker-status unlocked" id="status1">
@@ -169,7 +136,7 @@
                 id="model1-entity"
                 gltf-model="#model1"
                 scale="20 20 20"
-                position="0 0 0"
+                position="0 100 0"
                 rotation="0 0 0"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
             </a-entity>
@@ -189,7 +156,7 @@
                 id="model2-entity"
                 gltf-model="#model2"
                 scale="20 20 20"
-                position="0 0 0"
+                position="0 100 0"
                 rotation="0 0 0"
                 visible="false"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
@@ -210,7 +177,7 @@
                 id="model3-entity"
                 gltf-model="#model3"
                 scale="20 20 20"
-                position="0 0 0"
+                position="0 100 0"
                 rotation="0 0 0"
                 visible="false"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
@@ -229,12 +196,6 @@
         };
 
         // Get elements
-        const cameraStatus = document.getElementById('camera-status');
-        const arjsStatus = document.getElementById('arjs-status');
-        const m1Status = document.getElementById('m1-status');
-        const m2Status = document.getElementById('m2-status');
-        const m3Status = document.getElementById('m3-status');
-        const logs = document.getElementById('logs');
         const messageEl = document.getElementById('message');
         
         const status1 = document.getElementById('status1');
@@ -247,24 +208,10 @@
         
         const model2Entity = document.getElementById('model2-entity');
         const model3Entity = document.getElementById('model3-entity');
-        
-        const scene = document.querySelector('a-scene');
-
-        // Log function
-        function addLog(msg) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logLine = `[${timestamp}] ${msg}`;
-            console.log(logLine);
-            logs.innerHTML = logLine + '<br>' + logs.innerHTML;
-            if (logs.children.length > 10) {
-                logs.lastChild.remove();
-            }
-        }
 
         function showMessage(text, isError = false) {
             messageEl.textContent = text;
             messageEl.className = 'message show' + (isError ? ' error' : '');
-            addLog(text);
         }
 
         function updateStatusUI() {
@@ -273,25 +220,9 @@
             status3.className = 'marker-status ' + (progress.marker2 ? 'unlocked' : 'locked');
         }
 
-        // Scene events
-        scene.addEventListener('loaded', () => {
-            arjsStatus.textContent = '✅ Ready';
-            arjsStatus.style.color = '#4CAF50';
-            addLog('Scene loaded');
-        });
-
-        scene.addEventListener('renderstart', () => {
-            cameraStatus.textContent = '✅ Active';
-            cameraStatus.style.color = '#4CAF50';
-            addLog('Camera started');
-        });
-
         // Marker 1 - Always available
         if (nft1) {
             nft1.addEventListener('markerFound', () => {
-                addLog('🎯 Marker 1 FOUND!');
-                m1Status.textContent = '✅ FOUND';
-                m1Status.style.color = '#4CAF50';
                 status1.classList.add('active');
                 
                 if (!progress.marker1) {
@@ -302,9 +233,6 @@
             });
             
             nft1.addEventListener('markerLost', () => {
-                addLog('❌ Marker 1 lost');
-                m1Status.textContent = '⚠️ Lost';
-                m1Status.style.color = '#999';
                 status1.classList.remove('active');
             });
         }
@@ -312,18 +240,12 @@
         // Marker 2 - Requires Marker 1
         if (nft2) {
             nft2.addEventListener('markerFound', () => {
-                addLog('🎯 Marker 2 FOUND!');
-                
                 if (!progress.marker1) {
                     showMessage('🔒 Scan Marker 1 first!', true);
                     model2Entity.setAttribute('visible', 'false');
-                    m2Status.textContent = '🔒 LOCKED';
-                    m2Status.style.color = '#f44336';
                     return;
                 }
                 
-                m2Status.textContent = '✅ FOUND';
-                m2Status.style.color = '#4CAF50';
                 status2.classList.add('active');
                 model2Entity.setAttribute('visible', 'true');
                 
@@ -335,9 +257,6 @@
             });
             
             nft2.addEventListener('markerLost', () => {
-                addLog('❌ Marker 2 lost');
-                m2Status.textContent = '⚠️ Lost';
-                m2Status.style.color = '#999';
                 status2.classList.remove('active');
             });
         }
@@ -345,18 +264,12 @@
         // Marker 3 - Requires Marker 2
         if (nft3) {
             nft3.addEventListener('markerFound', () => {
-                addLog('🎯 Marker 3 FOUND!');
-                
                 if (!progress.marker2) {
                     showMessage('🔒 Scan Marker 2 first!', true);
                     model3Entity.setAttribute('visible', 'false');
-                    m3Status.textContent = '🔒 LOCKED';
-                    m3Status.style.color = '#f44336';
                     return;
                 }
                 
-                m3Status.textContent = '✅ FOUND';
-                m3Status.style.color = '#4CAF50';
                 status3.classList.add('active');
                 model3Entity.setAttribute('visible', 'true');
                 
@@ -368,32 +281,9 @@
             });
             
             nft3.addEventListener('markerLost', () => {
-                addLog('❌ Marker 3 lost');
-                m3Status.textContent = '⚠️ Lost';
-                m3Status.style.color = '#999';
                 status3.classList.remove('active');
             });
         }
-
-        // Camera permissions
-        navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            } 
-        })
-        .then(() => {
-            addLog('✅ Camera permission granted');
-        })
-        .catch((err) => {
-            addLog('❌ Camera error: ' + err.message);
-            cameraStatus.textContent = '❌ DENIED';
-            cameraStatus.style.color = '#f44336';
-            showMessage('❌ Camera access required!', true);
-        });
-
-        addLog('🚀 Script loaded - Scan Marker 1 to start!');
     </script>
 </body>
 </html>
