@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Demo</title>
+    <title>AR Demo - NFT Markers</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         
@@ -23,23 +23,78 @@
             max-width: 300px;
         }
         
-        .controls {
+        .status-bar {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 9999;
             background: rgba(0,0,0,0.7);
             color: white;
-            padding: 10px;
+            padding: 10px 20px;
             border-radius: 8px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            gap: 15px;
         }
         
-        .controls button {
+        .marker-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .marker-status .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
+        }
+        
+        .marker-status.unlocked .dot {
+            background: #4CAF50;
+        }
+        
+        .marker-status.locked .dot {
+            background: #f44336;
+        }
+        
+        .marker-status.active .dot {
+            background: #2196F3;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: rgba(33, 150, 243, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            display: none;
+        }
+        
+        .message.show {
             display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
+            animation: fadeOut 3s forwards;
+        }
+        
+        .message.error {
+            background: rgba(244, 67, 54, 0.9);
+        }
+        
+        @keyframes fadeOut {
+            0%, 70% { opacity: 1; }
+            100% { opacity: 0; display: none; }
         }
     </style>
 </head>
@@ -49,65 +104,129 @@
         <div><strong>Debug Info:</strong></div>
         <div>Camera: <span id="camera-status">Loading...</span></div>
         <div>AR.js: <span id="arjs-status">Loading...</span></div>
-        <div>Marker: <span id="marker-status">Not Found</span></div>
+        <div>M1: <span id="m1-status">-</span></div>
+        <div>M2: <span id="m2-status">-</span></div>
+        <div>M3: <span id="m3-status">-</span></div>
     </div>
 
-    <!-- Controls -->
-    <div class="controls">
-        <div style="margin-bottom: 10px;">
-            <strong>Print this marker:</strong><br>
-            <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" 
-               target="_blank" style="color: #4CAF50;">Download Hiro Marker</a>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="marker-status unlocked" id="status1">
+            <span class="dot"></span>
+            <span>Marker 1</span>
         </div>
-        <button id="test-btn">Test Visibility</button>
+        <div class="marker-status locked" id="status2">
+            <span class="dot"></span>
+            <span>Marker 2</span>
+        </div>
+        <div class="marker-status locked" id="status3">
+            <span class="dot"></span>
+            <span>Marker 3</span>
+        </div>
     </div>
+    
+    <!-- Message popup -->
+    <div class="message" id="message"></div>
 
     <!-- AR Scene -->
     <a-scene
         vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true;"
+        renderer="logarithmicDepthBuffer: true; alpha: true;"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
+        arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
 
         <a-assets>
-            <!-- Preload your GLB models here later -->
+            <a-asset-item id="model1" src="./models/model1.glb"></a-asset-item>
+            <a-asset-item id="model2" src="./models/model2.glb"></a-asset-item>
+            <a-asset-item id="model3" src="./models/model3.glb"></a-asset-item>
         </a-assets>
 
-        <!-- Lighting -->
-        <a-entity light="type: ambient; intensity: 0.5;"></a-entity>
-        <a-entity light="type: directional; intensity: 0.6" position="-0.5 1 1"></a-entity>
+        <!-- Lighting for GLB models -->
+        <a-entity light="type: ambient; intensity: 0.8;"></a-entity>
+        <a-entity light="type: directional; intensity: 0.6" position="-1 2 1"></a-entity>
 
-        <!-- Hiro Pattern Marker (TEST) -->
-        <a-marker id="hiro-marker" preset="hiro" raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
-            <!-- Red spinning box for testing -->
-            <a-box 
-                position="0 0.5 0" 
-                material="color: red;" 
-                scale="1 1 1"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000">
-            </a-box>
-            
-            <!-- Text label -->
-            <a-text 
-                value="MARKER WORKS!" 
-                align="center" 
-                position="0 1.5 0" 
-                color="#FF0000"
-                scale="2 2 2">
-            </a-text>
-        </a-marker>
+        <!-- NFT Marker 1 -->
+        <a-nft id="nft1" type="nft" url="./marker1" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
+            <a-entity 
+                gltf-model="#model1"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-nft>
+
+        <!-- NFT Marker 2 -->
+        <a-nft id="nft2" type="nft" url="./marker2" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
+            <a-entity 
+                id="model2-entity"
+                gltf-model="#model2"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-nft>
+
+        <!-- NFT Marker 3 -->
+        <a-nft id="nft3" type="nft" url="./marker3" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
+            <a-entity 
+                id="model3-entity"
+                gltf-model="#model3"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-nft>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
+        // Track progress
+        const progress = {
+            marker1: false,
+            marker2: false,
+            marker3: false
+        };
+
+        // Get elements
         const cameraStatus = document.getElementById('camera-status');
         const arjsStatus = document.getElementById('arjs-status');
-        const markerStatus = document.getElementById('marker-status');
-        const testBtn = document.getElementById('test-btn');
+        const m1Status = document.getElementById('m1-status');
+        const m2Status = document.getElementById('m2-status');
+        const m3Status = document.getElementById('m3-status');
+        
+        const status1 = document.getElementById('status1');
+        const status2 = document.getElementById('status2');
+        const status3 = document.getElementById('status3');
+        
+        const messageEl = document.getElementById('message');
+        
+        const nft1 = document.getElementById('nft1');
+        const nft2 = document.getElementById('nft2');
+        const nft3 = document.getElementById('nft3');
+        
+        const model2Entity = document.getElementById('model2-entity');
+        const model3Entity = document.getElementById('model3-entity');
         
         const scene = document.querySelector('a-scene');
-        const marker = document.getElementById('hiro-marker');
+
+        function showMessage(text, isError = false) {
+            console.log('Message:', text);
+            messageEl.textContent = text;
+            messageEl.className = 'message show' + (isError ? ' error' : '');
+            void messageEl.offsetWidth;
+        }
+
+        function updateStatusUI() {
+            status1.className = 'marker-status unlocked';
+            status2.className = 'marker-status ' + (progress.marker1 ? 'unlocked' : 'locked');
+            status3.className = 'marker-status ' + (progress.marker2 ? 'unlocked' : 'locked');
+        }
 
         // Scene loaded
         scene.addEventListener('loaded', () => {
@@ -123,28 +242,87 @@
             cameraStatus.style.color = '#4CAF50';
         });
 
-        // Marker found
-        marker.addEventListener('markerFound', () => {
-            console.log('🎯 MARKER FOUND!');
-            markerStatus.textContent = 'FOUND!';
-            markerStatus.style.color = '#4CAF50';
-        });
-
-        // Marker lost
-        marker.addEventListener('markerLost', () => {
-            console.log('❌ Marker lost');
-            markerStatus.textContent = 'Lost';
-            markerStatus.style.color = '#ff9800';
-        });
-
-        // Test button - makes box visible without marker
-        testBtn.addEventListener('click', () => {
-            const box = document.querySelector('a-box');
-            if (box) {
-                const currentVisible = box.getAttribute('visible');
-                box.setAttribute('visible', !currentVisible);
-                console.log('Box visibility toggled:', !currentVisible);
+        // Marker 1 - Always available
+        nft1.addEventListener('markerFound', () => {
+            console.log('🎯 Marker 1 FOUND!');
+            m1Status.textContent = 'FOUND';
+            m1Status.style.color = '#4CAF50';
+            status1.classList.add('active');
+            
+            if (!progress.marker1) {
+                progress.marker1 = true;
+                updateStatusUI();
+                showMessage('✅ Marker 1 complete! Marker 2 unlocked.');
             }
+        });
+        
+        nft1.addEventListener('markerLost', () => {
+            console.log('❌ Marker 1 lost');
+            m1Status.textContent = 'Lost';
+            m1Status.style.color = '#999';
+            status1.classList.remove('active');
+        });
+
+        // Marker 2 - Requires Marker 1
+        nft2.addEventListener('markerFound', () => {
+            console.log('🎯 Marker 2 FOUND!');
+            
+            if (!progress.marker1) {
+                showMessage('🔒 Scan Marker 1 first!', true);
+                model2Entity.setAttribute('visible', 'false');
+                m2Status.textContent = 'LOCKED';
+                m2Status.style.color = '#f44336';
+                return;
+            }
+            
+            m2Status.textContent = 'FOUND';
+            m2Status.style.color = '#4CAF50';
+            status2.classList.add('active');
+            model2Entity.setAttribute('visible', 'true');
+            
+            if (!progress.marker2) {
+                progress.marker2 = true;
+                updateStatusUI();
+                showMessage('✅ Marker 2 complete! Marker 3 unlocked.');
+            }
+        });
+        
+        nft2.addEventListener('markerLost', () => {
+            console.log('❌ Marker 2 lost');
+            m2Status.textContent = 'Lost';
+            m2Status.style.color = '#999';
+            status2.classList.remove('active');
+        });
+
+        // Marker 3 - Requires Marker 2
+        nft3.addEventListener('markerFound', () => {
+            console.log('🎯 Marker 3 FOUND!');
+            
+            if (!progress.marker2) {
+                showMessage('🔒 Scan Marker 2 first!', true);
+                model3Entity.setAttribute('visible', 'false');
+                m3Status.textContent = 'LOCKED';
+                m3Status.style.color = '#f44336';
+                return;
+            }
+            
+            m3Status.textContent = 'FOUND';
+            m3Status.style.color = '#4CAF50';
+            status3.classList.add('active');
+            model3Entity.setAttribute('visible', 'true');
+            
+            if (!progress.marker3) {
+                progress.marker3 = true;
+                updateStatusUI();
+                showMessage('🎉 All markers complete! Congratulations!');
+            }
+        });
+        
+        nft3.addEventListener('markerLost', () => {
+            console.log('❌ Marker 3 lost');
+            m3Status.textContent = 'Lost';
+            m3Status.style.color = '#999';
+            status3.classList.remove('active');
         });
 
         // Check camera permissions
@@ -156,10 +334,10 @@
                 console.error('❌ Camera error:', err);
                 cameraStatus.textContent = 'DENIED!';
                 cameraStatus.style.color = '#f44336';
-                alert('Camera access required! Please enable camera permissions in your browser settings.');
+                showMessage('❌ Camera access required!', true);
             });
 
-        console.log('🚀 Script loaded. Show the Hiro marker to the camera...');
+        console.log('🚀 Script loaded. Show NFT markers to camera...');
     </script>
 </body>
 </html>
