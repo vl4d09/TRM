@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Demo - NFT Debug</title>
+    <title>AR Demo - 3 NFT Markers</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <style>
@@ -61,6 +61,10 @@
             background: #4CAF50;
         }
         
+        .marker-status.locked .dot {
+            background: #f44336;
+        }
+        
         .marker-status.active .dot {
             background: #2196F3;
             animation: pulse 1s infinite;
@@ -83,6 +87,7 @@
             border-radius: 8px;
             font-family: Arial, sans-serif;
             display: none;
+            font-size: 16px;
         }
         
         .message.show {
@@ -106,7 +111,6 @@
         <div><strong>🔍 Debug Console</strong></div>
         <div>Camera: <span id="camera-status">⏳ Loading...</span></div>
         <div>AR.js: <span id="arjs-status">⏳ Loading...</span></div>
-        <div>NFT Loading: <span id="nft-status">⏳ Waiting...</span></div>
         <div>---</div>
         <div>M1: <span id="m1-status">-</span></div>
         <div>M2: <span id="m2-status">-</span></div>
@@ -121,11 +125,11 @@
             <span class="dot"></span>
             <span>Marker 1</span>
         </div>
-        <div class="marker-status unlocked" id="status2">
+        <div class="marker-status locked" id="status2">
             <span class="dot"></span>
             <span>Marker 2</span>
         </div>
-        <div class="marker-status unlocked" id="status3">
+        <div class="marker-status locked" id="status3">
             <span class="dot"></span>
             <span>Marker 3</span>
         </div>
@@ -139,17 +143,19 @@
         vr-mode-ui="enabled: false"
         renderer="logarithmicDepthBuffer: true; alpha: true;"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: true; trackingMethod: best; detectionMode: mono_and_matrix;">
+        arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
 
         <a-assets>
             <a-asset-item id="model1" src="./models/model1.glb"></a-asset-item>
+            <a-asset-item id="model2" src="./models/model2.glb"></a-asset-item>
+            <a-asset-item id="model3" src="./models/model3.glb"></a-asset-item>
         </a-assets>
 
         <!-- Lighting -->
-        <a-entity light="type: ambient; intensity: 1.0;"></a-entity>
-        <a-entity light="type: directional; intensity: 0.8" position="-1 2 1"></a-entity>
+        <a-entity light="type: ambient; intensity: 0.8;"></a-entity>
+        <a-entity light="type: directional; intensity: 0.6" position="-1 2 1"></a-entity>
 
-        <!-- NFT Marker 1 - Testing with simple geometry first -->
+        <!-- NFT Marker 1 -->
         <a-nft 
             id="nft1" 
             type="nft" 
@@ -159,52 +165,89 @@
             smoothTolerance=".01" 
             smoothThreshold="5">
             
-            <!-- Simple red box for testing -->
-            <a-box 
-                id="test-box"
-                position="0 100 0" 
-                width="100" 
-                height="100" 
-                depth="100" 
-                color="#FF0000"
-                material="opacity: 0.8; transparent: true"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000">
-            </a-box>
-            
-            <!-- Text for debugging -->
-            <a-text 
-                value="NFT 1 WORKS!" 
-                position="0 200 0" 
-                align="center" 
-                color="#00FF00"
-                scale="50 50 50">
-            </a-text>
+            <a-entity 
+                id="model1-entity"
+                gltf-model="#model1"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
         </a-nft>
 
-        <!-- NFT Marker 2 - Disabled for now -->
-        <!-- <a-nft id="nft2" type="nft" url="./marker2">
-            <a-box position="0 100 0" width="100" height="100" depth="100" color="#00FF00"></a-box>
-        </a-nft> -->
+        <!-- NFT Marker 2 -->
+        <a-nft 
+            id="nft2" 
+            type="nft" 
+            url="./marker2" 
+            smooth="true" 
+            smoothCount="10" 
+            smoothTolerance=".01" 
+            smoothThreshold="5">
+            
+            <a-entity 
+                id="model2-entity"
+                gltf-model="#model2"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-nft>
 
-        <!-- NFT Marker 3 - Disabled for now -->
-        <!-- <a-nft id="nft3" type="nft" url="./marker3">
-            <a-box position="0 100 0" width="100" height="100" depth="100" color="#0000FF"></a-box>
-        </a-nft> -->
+        <!-- NFT Marker 3 -->
+        <a-nft 
+            id="nft3" 
+            type="nft" 
+            url="./marker3" 
+            smooth="true" 
+            smoothCount="10" 
+            smoothTolerance=".01" 
+            smoothThreshold="5">
+            
+            <a-entity 
+                id="model3-entity"
+                gltf-model="#model3"
+                scale="20 20 20"
+                position="0 0 0"
+                rotation="0 0 0"
+                visible="false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
+        </a-nft>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
+        // Track progress
+        const progress = {
+            marker1: false,
+            marker2: false,
+            marker3: false
+        };
+
         // Get elements
         const cameraStatus = document.getElementById('camera-status');
         const arjsStatus = document.getElementById('arjs-status');
-        const nftStatus = document.getElementById('nft-status');
         const m1Status = document.getElementById('m1-status');
+        const m2Status = document.getElementById('m2-status');
+        const m3Status = document.getElementById('m3-status');
         const logs = document.getElementById('logs');
         const messageEl = document.getElementById('message');
+        
         const status1 = document.getElementById('status1');
+        const status2 = document.getElementById('status2');
+        const status3 = document.getElementById('status3');
         
         const nft1 = document.getElementById('nft1');
+        const nft2 = document.getElementById('nft2');
+        const nft3 = document.getElementById('nft3');
+        
+        const model2Entity = document.getElementById('model2-entity');
+        const model3Entity = document.getElementById('model3-entity');
+        
         const scene = document.querySelector('a-scene');
 
         // Log function
@@ -224,6 +267,12 @@
             addLog(text);
         }
 
+        function updateStatusUI() {
+            status1.className = 'marker-status unlocked';
+            status2.className = 'marker-status ' + (progress.marker1 ? 'unlocked' : 'locked');
+            status3.className = 'marker-status ' + (progress.marker2 ? 'unlocked' : 'locked');
+        }
+
         // Scene events
         scene.addEventListener('loaded', () => {
             arjsStatus.textContent = '✅ Ready';
@@ -237,51 +286,93 @@
             addLog('Camera started');
         });
 
-        // NFT loading events
-        window.addEventListener('arjs-nft-loaded', (e) => {
-            nftStatus.textContent = '✅ Loaded';
-            nftStatus.style.color = '#4CAF50';
-            addLog('NFT loaded: ' + JSON.stringify(e.detail));
-            showMessage('✅ NFT markers loaded successfully!');
-        });
-
-        // Check if NFT files exist
-        async function checkNFTFiles() {
-            const files = ['marker1.fset', 'marker1.fset3', 'marker1.iset'];
-            for (const file of files) {
-                try {
-                    const response = await fetch(`./${file}`);
-                    if (response.ok) {
-                        addLog(`✅ Found: ${file}`);
-                    } else {
-                        addLog(`❌ Missing: ${file}`);
-                        nftStatus.textContent = '❌ Missing files';
-                        nftStatus.style.color = '#f44336';
-                    }
-                } catch (e) {
-                    addLog(`❌ Error loading ${file}: ${e.message}`);
-                }
-            }
-        }
-
-        // Marker 1 events
+        // Marker 1 - Always available
         if (nft1) {
             nft1.addEventListener('markerFound', () => {
-                addLog('🎯 MARKER 1 FOUND!!!');
+                addLog('🎯 Marker 1 FOUND!');
                 m1Status.textContent = '✅ FOUND';
                 m1Status.style.color = '#4CAF50';
                 status1.classList.add('active');
-                showMessage('🎯 Marker 1 detected!');
+                
+                if (!progress.marker1) {
+                    progress.marker1 = true;
+                    updateStatusUI();
+                    showMessage('✅ Marker 1 complete! Marker 2 unlocked.');
+                }
             });
             
             nft1.addEventListener('markerLost', () => {
                 addLog('❌ Marker 1 lost');
                 m1Status.textContent = '⚠️ Lost';
-                m1Status.style.color = '#ff9800';
+                m1Status.style.color = '#999';
                 status1.classList.remove('active');
             });
-        } else {
-            addLog('❌ NFT1 element not found!');
+        }
+
+        // Marker 2 - Requires Marker 1
+        if (nft2) {
+            nft2.addEventListener('markerFound', () => {
+                addLog('🎯 Marker 2 FOUND!');
+                
+                if (!progress.marker1) {
+                    showMessage('🔒 Scan Marker 1 first!', true);
+                    model2Entity.setAttribute('visible', 'false');
+                    m2Status.textContent = '🔒 LOCKED';
+                    m2Status.style.color = '#f44336';
+                    return;
+                }
+                
+                m2Status.textContent = '✅ FOUND';
+                m2Status.style.color = '#4CAF50';
+                status2.classList.add('active');
+                model2Entity.setAttribute('visible', 'true');
+                
+                if (!progress.marker2) {
+                    progress.marker2 = true;
+                    updateStatusUI();
+                    showMessage('✅ Marker 2 complete! Marker 3 unlocked.');
+                }
+            });
+            
+            nft2.addEventListener('markerLost', () => {
+                addLog('❌ Marker 2 lost');
+                m2Status.textContent = '⚠️ Lost';
+                m2Status.style.color = '#999';
+                status2.classList.remove('active');
+            });
+        }
+
+        // Marker 3 - Requires Marker 2
+        if (nft3) {
+            nft3.addEventListener('markerFound', () => {
+                addLog('🎯 Marker 3 FOUND!');
+                
+                if (!progress.marker2) {
+                    showMessage('🔒 Scan Marker 2 first!', true);
+                    model3Entity.setAttribute('visible', 'false');
+                    m3Status.textContent = '🔒 LOCKED';
+                    m3Status.style.color = '#f44336';
+                    return;
+                }
+                
+                m3Status.textContent = '✅ FOUND';
+                m3Status.style.color = '#4CAF50';
+                status3.classList.add('active');
+                model3Entity.setAttribute('visible', 'true');
+                
+                if (!progress.marker3) {
+                    progress.marker3 = true;
+                    updateStatusUI();
+                    showMessage('🎉 All markers complete! Congratulations!');
+                }
+            });
+            
+            nft3.addEventListener('markerLost', () => {
+                addLog('❌ Marker 3 lost');
+                m3Status.textContent = '⚠️ Lost';
+                m3Status.style.color = '#999';
+                status3.classList.remove('active');
+            });
         }
 
         // Camera permissions
@@ -302,11 +393,7 @@
             showMessage('❌ Camera access required!', true);
         });
 
-        // Check NFT files on load
-        setTimeout(checkNFTFiles, 1000);
-
-        addLog('🚀 Script loaded');
-        console.log('AR.js version:', AFRAME.components.arjs);
+        addLog('🚀 Script loaded - Scan Marker 1 to start!');
     </script>
 </body>
 </html>
