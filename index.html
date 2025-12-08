@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Demo - 3 NFT Markers</title>
+    <title>AR Demo - Random Path</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     <style>
@@ -17,17 +17,35 @@
             z-index: 9999;
             background: rgba(0,0,0,0.7);
             color: white;
-            padding: 10px 20px;
+            padding: 15px 25px;
             border-radius: 8px;
             font-family: Arial, sans-serif;
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 280px;
+        }
+        
+        .path-info {
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .marker-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
         
         .marker-status {
             display: flex;
             align-items: center;
             gap: 5px;
+            font-size: 13px;
         }
         
         .marker-status .dot {
@@ -57,7 +75,7 @@
         
         .message {
             position: fixed;
-            top: 80px;
+            top: 130px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
@@ -68,6 +86,8 @@
             font-family: Arial, sans-serif;
             display: none;
             font-size: 16px;
+            max-width: 80%;
+            text-align: center;
         }
         
         .message.show {
@@ -79,6 +99,10 @@
             background: rgba(244, 67, 54, 0.9);
         }
         
+        .message.success {
+            background: rgba(76, 175, 80, 0.9);
+        }
+        
         @keyframes fadeOut {
             0%, 70% { opacity: 1; }
             100% { opacity: 0; }
@@ -88,17 +112,20 @@
 <body>
     <!-- Status Bar -->
     <div class="status-bar">
-        <div class="marker-status unlocked" id="status1">
-            <span class="dot"></span>
-            <span>Marker 1</span>
-        </div>
-        <div class="marker-status locked" id="status2">
-            <span class="dot"></span>
-            <span>Marker 2</span>
-        </div>
-        <div class="marker-status locked" id="status3">
-            <span class="dot"></span>
-            <span>Marker 3</span>
+        <div class="path-info" id="path-info">Scan Marker 1 to start</div>
+        <div class="marker-row">
+            <div class="marker-status unlocked" id="status1">
+                <span class="dot"></span>
+                <span>Marker 1</span>
+            </div>
+            <div class="marker-status locked" id="status2">
+                <span class="dot"></span>
+                <span>Marker 2</span>
+            </div>
+            <div class="marker-status locked" id="status3">
+                <span class="dot"></span>
+                <span>Marker 3</span>
+            </div>
         </div>
     </div>
     
@@ -116,6 +143,7 @@
             <a-asset-item id="model1" src="./models/model1.glb"></a-asset-item>
             <a-asset-item id="model2" src="./models/model2.glb"></a-asset-item>
             <a-asset-item id="model3" src="./models/model3.glb"></a-asset-item>
+            <a-asset-item id="model4" src="./models/model4.glb"></a-asset-item>
         </a-assets>
 
         <!-- Lighting -->
@@ -132,12 +160,24 @@
             smoothTolerance="0.01" 
             smoothThreshold="5">
             
+            <!-- Path A: Model 1 -->
             <a-entity 
                 id="model1-entity"
                 gltf-model="#model1"
                 scale="2 2 2"
                 position="60 150 -150"
-                rotation="0 180 0">
+                rotation="0 180 0"
+                visible="false">
+            </a-entity>
+            
+            <!-- Path B: Model 4 -->
+            <a-entity 
+                id="model4-m1-entity"
+                gltf-model="#model4"
+                scale="2 2 2"
+                position="60 150 -150"
+                rotation="0 180 0"
+                visible="false">
             </a-entity>
         </a-nft>
 
@@ -151,12 +191,23 @@
             smoothTolerance="0.01" 
             smoothThreshold="5">
             
+            <!-- Path A: Model 2 -->
             <a-entity 
                 id="model2-entity"
                 gltf-model="#model2"
                 scale="400 400 400"
                 position="0 45 -150"
                 rotation="90 180 0"
+                visible="false">
+            </a-entity>
+            
+            <!-- Path B: Model 4 -->
+            <a-entity 
+                id="model4-m2-entity"
+                gltf-model="#model4"
+                scale="2 2 2"
+                position="0 150 -150"
+                rotation="0 180 0"
                 visible="false">
             </a-entity>
         </a-nft>
@@ -171,12 +222,23 @@
             smoothTolerance="0.01" 
             smoothThreshold="5">
             
+            <!-- Path A: Model 3 -->
             <a-entity 
                 id="model3-entity"
                 gltf-model="#model3"
                 scale="100 100 100"
                 position="0 45 -150"
                 rotation="90 180 0"
+                visible="false">
+            </a-entity>
+            
+            <!-- Path B: Model 4 -->
+            <a-entity 
+                id="model4-m3-entity"
+                gltf-model="#model4"
+                scale="2 2 2"
+                position="0 150 -150"
+                rotation="0 180 0"
                 visible="false">
             </a-entity>
         </a-nft>
@@ -187,6 +249,7 @@
     <script>
         // Track progress
         const progress = {
+            chosenPath: null, // Will be 'pathA' (model1,2,3) or 'pathB' (model4,4,4)
             marker1: false,
             marker2: false,
             marker3: false
@@ -194,6 +257,7 @@
 
         // Get elements
         const messageEl = document.getElementById('message');
+        const pathInfo = document.getElementById('path-info');
         
         const status1 = document.getElementById('status1');
         const status2 = document.getElementById('status2');
@@ -203,29 +267,65 @@
         const nft2 = document.getElementById('nft2');
         const nft3 = document.getElementById('nft3');
         
+        // Path A models (1, 2, 3)
+        const model1Entity = document.getElementById('model1-entity');
         const model2Entity = document.getElementById('model2-entity');
         const model3Entity = document.getElementById('model3-entity');
+        
+        // Path B models (4, 4, 4)
+        const model4M1Entity = document.getElementById('model4-m1-entity');
+        const model4M2Entity = document.getElementById('model4-m2-entity');
+        const model4M3Entity = document.getElementById('model4-m3-entity');
 
-        function showMessage(text, isError = false) {
+        function showMessage(text, type = 'info') {
             messageEl.textContent = text;
-            messageEl.className = 'message show' + (isError ? ' error' : '');
+            messageEl.className = 'message show ' + type;
         }
 
         function updateStatusUI() {
-            status1.className = 'marker-status unlocked';
-            status2.className = 'marker-status ' + (progress.marker1 ? 'unlocked' : 'locked');
-            status3.className = 'marker-status ' + (progress.marker2 ? 'unlocked' : 'locked');
+            if (progress.marker1) {
+                status2.className = 'marker-status unlocked';
+            }
+            if (progress.marker2) {
+                status3.className = 'marker-status unlocked';
+            }
         }
 
-        // Marker 1 - Always available
+        // Marker 1 - Randomly choose path
         if (nft1) {
             nft1.addEventListener('markerFound', () => {
                 status1.classList.add('active');
                 
                 if (!progress.marker1) {
+                    // Random path selection (50/50 chance)
+                    const randomPath = Math.random() < 0.5 ? 'pathA' : 'pathB';
+                    progress.chosenPath = randomPath;
                     progress.marker1 = true;
+                    
+                    if (randomPath === 'pathA') {
+                        // Show Model 1 (dog path)
+                        model1Entity.setAttribute('visible', 'true');
+                        model4M1Entity.setAttribute('visible', 'false');
+                        pathInfo.textContent = '🐕 Path A: With Dog';
+                        showMessage('🐕 Path A chosen! Continue with dog.', 'success');
+                    } else {
+                        // Show Model 4 (human path)
+                        model1Entity.setAttribute('visible', 'false');
+                        model4M1Entity.setAttribute('visible', 'true');
+                        pathInfo.textContent = '🧍 Path B: Alone';
+                        showMessage('🧍 Path B chosen! Continue alone.', 'success');
+                    }
+                    
                     updateStatusUI();
-                    showMessage('✅ Marker 1 complete! Marker 2 unlocked.');
+                } else {
+                    // Already chose path, just show the correct model
+                    if (progress.chosenPath === 'pathA') {
+                        model1Entity.setAttribute('visible', 'true');
+                        model4M1Entity.setAttribute('visible', 'false');
+                    } else {
+                        model1Entity.setAttribute('visible', 'false');
+                        model4M1Entity.setAttribute('visible', 'true');
+                    }
                 }
             });
             
@@ -234,22 +334,39 @@
             });
         }
 
-        // Marker 2 - Requires Marker 1
+        // Marker 2 - Follows chosen path
         if (nft2) {
             nft2.addEventListener('markerFound', () => {
+                // Check if Marker 1 was scanned first
                 if (!progress.marker1) {
-                    showMessage('🔒 Scan Marker 1 first!', true);
+                    showMessage('🔒 Scan Marker 1 first!', 'error');
                     model2Entity.setAttribute('visible', 'false');
+                    model4M2Entity.setAttribute('visible', 'false');
                     return;
                 }
                 
                 status2.classList.add('active');
-                model2Entity.setAttribute('visible', 'true');
                 
-                if (!progress.marker2) {
-                    progress.marker2 = true;
-                    updateStatusUI();
-                    showMessage('✅ Marker 2 complete! Marker 3 unlocked.');
+                if (progress.chosenPath === 'pathA') {
+                    // Show Model 2 (dog path)
+                    model2Entity.setAttribute('visible', 'true');
+                    model4M2Entity.setAttribute('visible', 'false');
+                    
+                    if (!progress.marker2) {
+                        progress.marker2 = true;
+                        updateStatusUI();
+                        showMessage('🐕 Marker 2 complete! One more to go.', 'success');
+                    }
+                } else {
+                    // Show Model 4 (human path)
+                    model2Entity.setAttribute('visible', 'false');
+                    model4M2Entity.setAttribute('visible', 'true');
+                    
+                    if (!progress.marker2) {
+                        progress.marker2 = true;
+                        updateStatusUI();
+                        showMessage('🧍 Marker 2 complete! One more to go.', 'success');
+                    }
                 }
             });
             
@@ -258,22 +375,39 @@
             });
         }
 
-        // Marker 3 - Requires Marker 2
+        // Marker 3 - Final marker, follows chosen path
         if (nft3) {
             nft3.addEventListener('markerFound', () => {
+                // Check if Marker 2 was scanned first
                 if (!progress.marker2) {
-                    showMessage('🔒 Scan Marker 2 first!', true);
+                    showMessage('🔒 Scan Marker 2 first!', 'error');
                     model3Entity.setAttribute('visible', 'false');
+                    model4M3Entity.setAttribute('visible', 'false');
                     return;
                 }
                 
                 status3.classList.add('active');
-                model3Entity.setAttribute('visible', 'true');
                 
-                if (!progress.marker3) {
-                    progress.marker3 = true;
-                    updateStatusUI();
-                    showMessage('🎉 All markers complete! Congratulations!');
+                if (progress.chosenPath === 'pathA') {
+                    // Show Model 3 (dog path)
+                    model3Entity.setAttribute('visible', 'true');
+                    model4M3Entity.setAttribute('visible', 'false');
+                    
+                    if (!progress.marker3) {
+                        progress.marker3 = true;
+                        showMessage('🎉 Path A Complete! Journey with dog finished!', 'success');
+                        pathInfo.textContent = '✅ Path A Complete!';
+                    }
+                } else {
+                    // Show Model 4 (human path)
+                    model3Entity.setAttribute('visible', 'false');
+                    model4M3Entity.setAttribute('visible', 'true');
+                    
+                    if (!progress.marker3) {
+                        progress.marker3 = true;
+                        showMessage('🎉 Path B Complete! Solo journey finished!', 'success');
+                        pathInfo.textContent = '✅ Path B Complete!';
+                    }
                 }
             });
             
