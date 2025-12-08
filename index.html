@@ -174,7 +174,7 @@
             <a-entity 
                 id="model4-m1-entity"
                 gltf-model="#model4"
-                scale="20 20 20"
+                scale="200 200 200"
                 position="60 150 -150"
                 rotation="0 180 0"
                 visible="false">
@@ -205,7 +205,7 @@
             <a-entity 
                 id="model4-m2-entity"
                 gltf-model="#model4"
-                scale="20 20 20"
+                scale="200 200 200"
                 position="0 150 -150"
                 rotation="0 180 0"
                 visible="false">
@@ -236,7 +236,7 @@
             <a-entity 
                 id="model4-m3-entity"
                 gltf-model="#model4"
-                scale="20 20 20"
+                scale="200 200 200"
                 position="0 150 -150"
                 rotation="0 180 0"
                 visible="false">
@@ -278,6 +278,13 @@
         const model4M3Entity = document.getElementById('model4-m3-entity');
 
         function showMessage(text, type = 'info') {
+            // Remove classes first to reset animation
+            messageEl.className = 'message';
+            
+            // Force reflow to restart animation
+            void messageEl.offsetWidth;
+            
+            // Set content and add classes
             messageEl.textContent = text;
             messageEl.className = 'message show ' + type;
         }
